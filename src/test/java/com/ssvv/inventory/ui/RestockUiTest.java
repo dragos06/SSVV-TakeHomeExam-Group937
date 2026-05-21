@@ -145,7 +145,7 @@ public class RestockUiTest extends BaseUiTest {
         }
 
         driver.findElement(By.id("quantity-input")).clear();
-        driver.findElement(By.id("quantity-input")).sendKeys("50");
+        driver.findElement(By.id("quantity-input")).sendKeys("5");
         driver.findElement(By.id("submit-btn")).click();
 
         // Re-verify the count on the products page
@@ -157,7 +157,7 @@ public class RestockUiTest extends BaseUiTest {
         String finalStockText = cellsAfter.get(2).getText().trim();
         int finalStock = Integer.parseInt(finalStockText);
 
-        assertEquals(initialStock + 50, finalStock, "Fulfilling a restock transaction must immediately update the product's live stock tracking metrics.");
+        assertEquals(initialStock + 5, finalStock, "Fulfilling a restock transaction must immediately update the product's live stock tracking metrics.");
     }
 
     @Test
@@ -183,7 +183,7 @@ public class RestockUiTest extends BaseUiTest {
         if (supSelect.getOptions().size() > 1) supSelect.selectByIndex(1);
 
         driver.findElement(By.id("quantity-input")).clear();
-        driver.findElement(By.id("quantity-input")).sendKeys("50");
+        driver.findElement(By.id("quantity-input")).sendKeys("5");
         driver.findElement(By.id("submit-btn")).click();
 
         // Step 3: Verify Tracking Record is added to Shipments Log
@@ -200,7 +200,7 @@ public class RestockUiTest extends BaseUiTest {
         WebElement rowAfter = driver.findElement(By.xpath("//tr[td[contains(text(),'Wireless Keyboards')]]"));
         int finalStock = Integer.parseInt(rowAfter.findElements(By.tagName("td")).get(2).getText().trim());
 
-        assertEquals(initialStock + 50, finalStock, "The products page must reflect the incremented inventory post-shipment generation.");
+        assertEquals(initialStock + 5, finalStock, "The products page must reflect the incremented inventory post-shipment generation.");
     }
 
     @Test
