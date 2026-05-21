@@ -27,6 +27,22 @@ This document describes the current integration-style and end-to-end tests in th
     - If `ShipmentRepository.save(...)` fails (simulated RuntimeException), the test asserts the failure is propagated and that save was attempted
   - Note: tests call `clearInvocations(...)` at the start of many methods to ignore repository calls performed by the application startup `DataInitializer`.
 
+- Repository (JPA) integration tests
+
+  - Purpose: verify JPA repository queries, constraints and entity mappings against an in-memory database (H2). These tests exercise real persistence wiring, entity validation, relationships and paging behavior.
+  - Files:
+    - `src/test/java/com/ssvv/inventory/integration/RepositoryIntegrationTest.java`
+    - `src/test/java/com/ssvv/inventory/integration/RepositoryMoreIntegrationTest.java`
+  - Approach: `@DataJpaTest` — fast slice tests that start a lightweight Spring context with an embedded H2 datasource and the Spring Data repositories. They save and flush entities to validate SQL-level constraints and JPQL queries.
+  - Key behaviours asserted:
+    - `findProductsBelowMinThreshold()` returns only products whose `stockLevel < minThreshold`.
+    - Unique constraints on `Product.name` trigger a `DataIntegrityViolationException` when violated (test uses `saveAndFlush` to force constraint evaluation).
+    - Paging/sorting behavior for `ProductRepository.findAll(Pageable)` is exercised (verify page sizes and total pages).
+    - Entity relationships: saving a `Shipment` correctly persists `product` and `supplier` foreign keys and allows navigation between entities.
+  - Common gotchas / troubleshooting:
+    - `Supplier` entity has validation annotations: `contactEmail` (must be non-empty and valid email) and `leadTimeDays` (required, non-negative). Tests that create `Supplier` instances must set `contactEmail` and `leadTimeDays` before saving or will fail with a `ConstraintViolationException`. Example valid values used in tests: `supplier.setContactEmail("supplier@example.com")` and `supplier.setLeadTimeDays(2)`.
+    - Use `saveAndFlush(...)` when you need to force constraint checks and database exceptions within the test method rather than at JVM shutdown.
+
 ## How to run the tests
 
 Run only the integration tests (interaction/service-level stubs):
